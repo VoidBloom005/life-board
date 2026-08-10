@@ -160,9 +160,12 @@
   <!-- ⑥ 本金原点 -->
   <div class="card money">
     <h2>💰 本金曲线 <span class="tag">终点：80万</span></h2>
-    <div class="num" id="capital">¥6,000</div>
-    <div class="goal">距离 80 万还差 <span id="capitalLeft">794,000</span></div>
+    <div class="num" id="capital" style="cursor:pointer">¥0</div>
+    <div class="goal">距离 80 万还差 <span id="capitalLeft">800,000</span></div>
     <div class="mbar"><div class="mfill" id="capitalFill"></div></div>
+    <div class="mini2" style="font-size:12px;color:var(--sub);margin-top:8px">
+      👆 点上面数字可修改你的本金起点。今年存款会自动加在它上面。
+    </div>
   </div>
 
   <div class="note">
@@ -175,7 +178,6 @@
 
 <script>
 // ============ 数据配置 ============
-const CAPITAL_NOW = 6000;      // 本金原点：第一笔工资
 const CAPITAL_GOAL = 800000;   // 目标 80 万
 const SAVE_2026_GOAL = 20000;  // 2026年度存款靶子：2万
 
@@ -230,6 +232,7 @@ if(!DB.engine) DB.engine=[];      // 已完成的发动机步骤 index
 if(!DB.streak) DB.streak={count:0,last:''};
 if(DB.saved2026==null) DB.saved2026=0;       // 2026累计存款
 if(DB.firstIncome==null) DB.firstIncome=false; // 副业第一笔是否达成
+if(DB.capitalBase==null) DB.capitalBase=0;   // 本金起点（可自己填，默认0）
 const tk = todayKey();
 if(!DB.days[tk]) DB.days[tk]={energy:0,life:[],radar:[]};
 
@@ -324,12 +327,12 @@ function render(){
       '<span class="mini2">你证明了有人愿意为你付费——这是发动机真正点火的一刻。</span>';
   }
 
-  // 本金 = 原点 + 今年存款
-  const capital=CAPITAL_NOW+saved;
+  // 本金 = 起点(可自填) + 今年存款
+  const capital=DB.capitalBase+saved;
   const left=CAPITAL_GOAL-capital;
   document.getElementById('capital').textContent='¥'+capital.toLocaleString();
   document.getElementById('capitalLeft').textContent=left.toLocaleString();
-  document.getElementById('capitalFill').style.width=(capital/CAPITAL_GOAL*100)+'%';
+  document.getElementById('capitalFill').style.width=Math.min(100,capital/CAPITAL_GOAL*100)+'%';
 }
 
 function commit(){ updateStreak(); save(DB); render(); }
@@ -355,6 +358,17 @@ document.getElementById('saveInput').addEventListener('keydown',e=>{
 // 标记副业第一笔（可点开/取消）
 document.getElementById('firstIncome').onclick=()=>{
   DB.firstIncome=!DB.firstIncome;
+  commit();
+};
+
+// 点数字修改本金起点
+document.getElementById('capital').onclick=()=>{
+  const cur=DB.capitalBase;
+  const v=prompt('填写你现在的本金起点（元）：\n（只填已有的存款/本金，今年新存的用上面"记一笔"）', cur);
+  if(v===null) return;
+  const n=Math.round(+v);
+  if(isNaN(n)||n<0){ alert('请填一个不小于0的数字'); return; }
+  DB.capitalBase=n;
   commit();
 };
 
