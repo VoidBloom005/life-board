@@ -80,6 +80,26 @@
     background:var(--accent2); color:#fff; padding:8px 20px; border-radius:20px;
     font-size:13px; opacity:0; transition:.3s; pointer-events:none; }
   .save-tip.show{ opacity:1; }
+  /* 2026 近靶子 */
+  .goal2026{ border:1.5px solid var(--accent); }
+  .goal2026 .mini{ font-size:14px; margin-bottom:4px; }
+  .goal2026 .mini b{ color:var(--accent2); font-size:18px; }
+  .goal2026 .mbar{ height:9px; background:var(--line); border-radius:5px;
+    overflow:hidden; margin-top:6px; }
+  .goal2026 .mfill{ height:100%; background:var(--accent2); width:0; transition:.4s; }
+  .goal2026 .save-row{ display:flex; gap:8px; margin:12px 0 8px; }
+  .goal2026 .save-row input{ flex:1; min-width:0; padding:11px 12px;
+    border:1.5px solid var(--line); border-radius:10px; font-size:15px;
+    background:#fff; -webkit-appearance:none; }
+  .goal2026 .save-row button{ white-space:nowrap; padding:11px 15px; border:none;
+    background:var(--accent2); color:#fff; border-radius:10px; font-size:14px;
+    font-weight:500; cursor:pointer; }
+  .goal2026 .mini2{ font-size:12px; color:var(--sub); }
+  .goal2026 .milestone{ margin-top:14px; padding:11px 12px; border-radius:10px;
+    background:#fdf0e7; font-size:13px; cursor:pointer; border:1px dashed var(--accent); }
+  .goal2026 .milestone.done{ background:#eef5ec; border-color:var(--accent2); }
+  .goal2026 .milestone .st{ font-weight:600; color:var(--accent); }
+  .goal2026 .milestone.done .st{ color:var(--accent2); }
 </style>
 </head>
 <body>
@@ -121,7 +141,23 @@
     <div id="radar"></div>
   </div>
 
-  <!-- ⑤ 本金原点 -->
+  <!-- ⑤ 2026 近靶子 -->
+  <div class="card goal2026">
+    <h2>🎯 2026只盯两个数 <span class="tag">近靶子·今年</span></h2>
+    <div class="mini">💵 今年存款 <b id="saved2026">¥0</b> / 2万　<span class="mini2" id="saveLeft"></span></div>
+    <div class="mbar"><div class="mfill" id="save2026Fill"></div></div>
+    <div class="save-row">
+      <input type="number" id="saveInput" placeholder="这个月存了多少？如 4000" inputmode="numeric">
+      <button id="saveBtn">+ 记一笔</button>
+    </div>
+    <div class="mini2" id="saveHint">发了工资就记一笔，数字往2万爬。存的钱会自动加进下面的本金曲线。</div>
+    <div class="milestone" id="firstIncome">
+      🌱 副业第一笔外部收入：<span class="st">未达成</span><br>
+      <span class="mini2">哪怕1元，证明有人愿意为你付费。点这里标记达成 🎉</span>
+    </div>
+  </div>
+
+  <!-- ⑥ 本金原点 -->
   <div class="card money">
     <h2>💰 本金曲线 <span class="tag">终点：80万</span></h2>
     <div class="num" id="capital">¥6,000</div>
@@ -141,6 +177,7 @@
 // ============ 数据配置 ============
 const CAPITAL_NOW = 6000;      // 本金原点：第一笔工资
 const CAPITAL_GOAL = 800000;   // 目标 80 万
+const SAVE_2026_GOAL = 20000;  // 2026年度存款靶子：2万
 
 const LIFE_ITEMS = [
   {id:'health', t:'健康', s:'喝够水 / 动了动 / 好好吃饭，任意一样'},
@@ -191,6 +228,8 @@ let DB = load();
 if(!DB.days) DB.days={};
 if(!DB.engine) DB.engine=[];      // 已完成的发动机步骤 index
 if(!DB.streak) DB.streak={count:0,last:''};
+if(DB.saved2026==null) DB.saved2026=0;       // 2026累计存款
+if(DB.firstIncome==null) DB.firstIncome=false; // 副业第一笔是否达成
 const tk = todayKey();
 if(!DB.days[tk]) DB.days[tk]={energy:0,life:[],radar:[]};
 
@@ -270,11 +309,27 @@ function render(){
     rad.appendChild(el);
   });
 
-  // 本金
-  const left=CAPITAL_GOAL-CAPITAL_NOW;
-  document.getElementById('capital').textContent='¥'+CAPITAL_NOW.toLocaleString();
+  // 2026 近靶子：存款
+  const saved=DB.saved2026;
+  document.getElementById('saved2026').textContent='¥'+saved.toLocaleString();
+  document.getElementById('save2026Fill').style.width=Math.min(100,saved/SAVE_2026_GOAL*100)+'%';
+  const sLeft=SAVE_2026_GOAL-saved;
+  document.getElementById('saveLeft').textContent=
+    sLeft>0 ? '还差 ¥'+sLeft.toLocaleString() : '达成啦 🎉';
+  // 副业第一笔
+  const fi=document.getElementById('firstIncome');
+  if(DB.firstIncome){
+    fi.classList.add('done');
+    fi.innerHTML='🎉 副业第一笔外部收入：<span class="st">已达成！</span><br>'+
+      '<span class="mini2">你证明了有人愿意为你付费——这是发动机真正点火的一刻。</span>';
+  }
+
+  // 本金 = 原点 + 今年存款
+  const capital=CAPITAL_NOW+saved;
+  const left=CAPITAL_GOAL-capital;
+  document.getElementById('capital').textContent='¥'+capital.toLocaleString();
   document.getElementById('capitalLeft').textContent=left.toLocaleString();
-  document.getElementById('capitalFill').style.width=(CAPITAL_NOW/CAPITAL_GOAL*100)+'%';
+  document.getElementById('capitalFill').style.width=(capital/CAPITAL_GOAL*100)+'%';
 }
 
 function commit(){ updateStreak(); save(DB); render(); }
@@ -283,6 +338,25 @@ function commit(){ updateStreak(); save(DB); render(); }
 document.querySelectorAll('#energy button').forEach(b=>{
   b.onclick=()=>{ DB.days[tk].energy=+b.dataset.v; commit(); };
 });
+
+// 记一笔存款
+document.getElementById('saveBtn').onclick=()=>{
+  const inp=document.getElementById('saveInput');
+  const v=Math.round(+inp.value);
+  if(!v || v<=0){ inp.focus(); return; }
+  DB.saved2026+=v;
+  inp.value='';
+  commit();
+};
+document.getElementById('saveInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('saveBtn').click();
+});
+
+// 标记副业第一笔（可点开/取消）
+document.getElementById('firstIncome').onclick=()=>{
+  DB.firstIncome=!DB.firstIncome;
+  commit();
+};
 
 render();
 </script>
