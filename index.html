@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>嘉欣的人生进度台</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root{
+    --bg:#f4f1ea; --card:#fffdf8; --ink:#3a3a3a; --sub:#9a9384;
+    --line:#e8e2d5; --accent:#e8a87c; --accent2:#a8c3a0; --gold:#d4a94a;
+    --shadow:0 2px 12px rgba(140,120,90,.08);
+  }
+  body{ font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.6; padding:16px;
+    max-width:520px; margin:0 auto; padding-bottom:60px; }
+  .head{ text-align:center; padding:8px 0 16px; }
+  .head h1{ font-size:20px; font-weight:600; letter-spacing:1px; }
+  .head .date{ font-size:13px; color:var(--sub); margin-top:2px; }
+  .head .streak{ display:inline-block; margin-top:8px; background:var(--gold);
+    color:#fff; font-size:13px; padding:3px 12px; border-radius:20px; font-weight:500; }
+  .card{ background:var(--card); border-radius:16px; padding:16px; margin-bottom:14px;
+    box-shadow:var(--shadow); border:1px solid var(--line); }
+  .card h2{ font-size:15px; font-weight:600; margin-bottom:12px; display:flex;
+    align-items:center; gap:6px; }
+  .card h2 .tag{ font-size:11px; color:var(--sub); font-weight:400; margin-left:auto; }
+  /* 精力自评 */
+  .energy-btns{ display:flex; gap:8px; }
+  .energy-btns button{ flex:1; padding:12px 0; border:1.5px solid var(--line);
+    background:#fff; border-radius:12px; font-size:22px; cursor:pointer;
+    transition:.15s; }
+  .energy-btns button.on{ border-color:var(--accent); background:#fdf0e7;
+    transform:scale(1.05); }
+  .energy-hint{ font-size:13px; color:var(--sub); margin-top:10px; text-align:center;
+    min-height:20px; }
+  /* 生活四维 checklist */
+  .checks .item{ display:flex; align-items:center; gap:10px; padding:9px 0;
+    border-bottom:1px dashed var(--line); cursor:pointer; }
+  .checks .item:last-child{ border-bottom:none; }
+  .checks .box{ width:22px; height:22px; border:2px solid var(--line);
+    border-radius:7px; flex-shrink:0; display:flex; align-items:center;
+    justify-content:center; font-size:14px; color:#fff; transition:.15s; }
+  .checks .item.done .box{ background:var(--accent2); border-color:var(--accent2); }
+  .checks .item.done .txt{ color:var(--sub); text-decoration:line-through; }
+  .checks .txt{ font-size:14px; }
+  .checks .txt small{ display:block; color:var(--sub); font-size:11px;
+    text-decoration:none; }
+  /* 发动机进度条 */
+  .engine .bar{ height:10px; background:var(--line); border-radius:6px;
+    overflow:hidden; margin:4px 0 14px; }
+  .engine .fill{ height:100%; background:linear-gradient(90deg,var(--accent),var(--gold));
+    width:0; transition:.4s; }
+  .engine .step{ display:flex; align-items:center; gap:10px; padding:7px 0;
+    cursor:pointer; font-size:13px; }
+  .engine .step .dot{ width:18px; height:18px; border-radius:50%;
+    border:2px solid var(--line); flex-shrink:0; display:flex;
+    align-items:center; justify-content:center; font-size:11px; color:#fff; }
+  .engine .step.done .dot{ background:var(--accent); border-color:var(--accent); }
+  .engine .step.done span{ color:var(--sub); text-decoration:line-through; }
+  /* 平台雷达 */
+  .radar .item{ display:flex; align-items:center; gap:10px; padding:8px 0;
+    border-bottom:1px dashed var(--line); cursor:pointer; font-size:13px; }
+  .radar .item:last-child{ border-bottom:none; }
+  .radar .box{ width:20px; height:20px; border:2px solid var(--line);
+    border-radius:6px; flex-shrink:0; display:flex; align-items:center;
+    justify-content:center; font-size:12px; color:#fff; }
+  .radar .item.done .box{ background:#7fa8d4; border-color:#7fa8d4; }
+  .radar .item .txt small{ display:block; color:var(--sub); font-size:11px; }
+  /* 本金 */
+  .money{ text-align:center; }
+  .money .num{ font-size:28px; font-weight:700; color:var(--gold); }
+  .money .goal{ font-size:12px; color:var(--sub); margin-top:2px; }
+  .money .mbar{ height:8px; background:var(--line); border-radius:5px;
+    overflow:hidden; margin-top:10px; }
+  .money .mfill{ height:100%; background:var(--gold); width:0; transition:.4s; }
+  /* 底注 */
+  .note{ text-align:center; font-size:12px; color:var(--sub); margin-top:20px;
+    line-height:1.8; }
+  .save-tip{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background:var(--accent2); color:#fff; padding:8px 20px; border-radius:20px;
+    font-size:13px; opacity:0; transition:.3s; pointer-events:none; }
+  .save-tip.show{ opacity:1; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>🌱 嘉欣的人生进度台</h1>
+    <div class="date" id="today"></div>
+    <div class="streak" id="streak">连续 0 天</div>
+  </div>
+
+  <!-- ① 今日精力自评 -->
+  <div class="card">
+    <h2>⚡ 今日精力 <span class="tag">地基·先点这里</span></h2>
+    <div class="energy-btns" id="energy">
+      <button data-v="1">😵</button>
+      <button data-v="2">😪</button>
+      <button data-v="3">🙂</button>
+      <button data-v="4">😊</button>
+      <button data-v="5">🔥</button>
+    </div>
+    <div class="energy-hint" id="energyHint">今天精力几分？点一下，我帮你配今天该干轻活还是重活。</div>
+  </div>
+
+  <!-- ② 生活四维 -->
+  <div class="card">
+    <h2>🌿 今天照顾了自己吗 <span class="tag">健康·财务·目标·心情</span></h2>
+    <div class="checks" id="life"></div>
+  </div>
+
+  <!-- ③ 发动机进度 -->
+  <div class="card engine">
+    <h2>🚀 发动机：桌宠记账 <span class="tag" id="enginePct">0%</span></h2>
+    <div class="bar"><div class="fill" id="engineFill"></div></div>
+    <div id="engine"></div>
+  </div>
+
+  <!-- ④ 平台雷达 -->
+  <div class="card radar">
+    <h2>📡 平台雷达：今天薅到啥 <span class="tag">上班不白上</span></h2>
+    <div id="radar"></div>
+  </div>
+
+  <!-- ⑤ 本金原点 -->
+  <div class="card money">
+    <h2>💰 本金曲线 <span class="tag">终点：80万</span></h2>
+    <div class="num" id="capital">¥6,000</div>
+    <div class="goal">距离 80 万还差 <span id="capitalLeft">794,000</span></div>
+    <div class="mbar"><div class="mfill" id="capitalFill"></div></div>
+  </div>
+
+  <div class="note">
+    每天只花 2 分钟：点精力 → 勾几个格子 → 关掉。<br>
+    数据只存在你自己电脑，不上传任何地方。<br>
+    <b>先跑通 7 天，我们再搬上小程序。</b>
+  </div>
+
+  <div class="save-tip" id="saveTip">✓ 已保存</div>
+
+<script>
+// ============ 数据配置 ============
+const CAPITAL_NOW = 6000;      // 本金原点：第一笔工资
+const CAPITAL_GOAL = 800000;   // 目标 80 万
+
+const LIFE_ITEMS = [
+  {id:'health', t:'健康', s:'喝够水 / 动了动 / 好好吃饭，任意一样'},
+  {id:'money',  t:'财务', s:'今天记账了（你最擅长的那件事）'},
+  {id:'goal',   t:'目标', s:'为发动机推进了一点点，哪怕5分钟'},
+  {id:'mood',   t:'心情', s:'对自己说了句好话 / 没内耗'},
+];
+
+const ENGINE_STEPS = [
+  '想清楚：一句话说明白桌宠记账给谁、解决啥',
+  '连续用本地版7天（就是现在这个）',
+  '画出APP最核心的1个界面草图',
+  '做出能记一笔账的最小demo',
+  '给3个朋友用，收集真实反馈',
+  '搬上小程序+服务器',
+  '第1个陌生人愿意用',
+  '第1个陌生人愿意付费 🎉',
+];
+
+const RADAR_ITEMS = [
+  {t:'Doris数据库', s:'查询/建表/数仓，外面要花钱学的'},
+  {t:'补货归因分析', s:'把业务问题拆成数据问题的思维'},
+  {t:'超级补货员AI', s:'真实AI落地经验，简历硬通货'},
+  {t:'重点SKU工单', s:'产品化思维：给平台加功能模块'},
+  {t:'DBeaver/SQL', s:'数据岗基本功，越熟越值钱'},
+];
+
+const ENERGY_HINTS = {
+  1:'😵 今天很累。放过自己——只记个账就算赢，发动机的事明天再说。',
+  2:'😪 有点疲。挑1件最小的事做，比如勾一个格子，别硬撑。',
+  3:'🙂 状态还行。做1件发动机的小事，5-15分钟就好。',
+  4:'😊 精力不错！这是黄金时段，推1个发动机步骤，别浪费。',
+  5:'🔥 火力全开！今天最适合干难事——挑发动机里最卡的那步硬啃。',
+};
+
+// ============ 存取 ============
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+function load(){ try{return JSON.parse(localStorage.getItem('lifeboard')||'{}');}catch(e){return {};} }
+function save(data){
+  localStorage.setItem('lifeboard',JSON.stringify(data));
+  const t=document.getElementById('saveTip'); t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1000);
+}
+let DB = load();
+if(!DB.days) DB.days={};
+if(!DB.engine) DB.engine=[];      // 已完成的发动机步骤 index
+if(!DB.streak) DB.streak={count:0,last:''};
+const tk = todayKey();
+if(!DB.days[tk]) DB.days[tk]={energy:0,life:[],radar:[]};
+
+// ============ 连续天数 ============
+function updateStreak(){
+  const last=DB.streak.last;
+  if(last===tk) return; // 今天已算过
+  const y=new Date(); y.setDate(y.getDate()-1);
+  const yk=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();
+  if(last===yk) DB.streak.count++;
+  else DB.streak.count=1;
+  DB.streak.last=tk;
+}
+
+// ============ 渲染 ============
+function render(){
+  // 日期
+  const d=new Date();
+  const wk=['日','一','二','三','四','五','六'][d.getDay()];
+  document.getElementById('today').textContent=
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${wk}`;
+  document.getElementById('streak').textContent=`连续 ${DB.streak.count} 天 🔥`;
+
+  const day=DB.days[tk];
+
+  // 精力
+  document.querySelectorAll('#energy button').forEach(b=>{
+    b.classList.toggle('on', +b.dataset.v===day.energy);
+  });
+  if(day.energy) document.getElementById('energyHint').textContent=ENERGY_HINTS[day.energy];
+
+  // 生活四维
+  const life=document.getElementById('life'); life.innerHTML='';
+  LIFE_ITEMS.forEach(it=>{
+    const done=day.life.includes(it.id);
+    const el=document.createElement('div');
+    el.className='item'+(done?' done':'');
+    el.innerHTML=`<div class="box">✓</div><div class="txt">${it.t}<small>${it.s}</small></div>`;
+    el.onclick=()=>{
+      if(day.life.includes(it.id)) day.life=day.life.filter(x=>x!==it.id);
+      else day.life.push(it.id);
+      commit();
+    };
+    life.appendChild(el);
+  });
+
+  // 发动机
+  const eng=document.getElementById('engine'); eng.innerHTML='';
+  ENGINE_STEPS.forEach((s,i)=>{
+    const done=DB.engine.includes(i);
+    const el=document.createElement('div');
+    el.className='step'+(done?' done':'');
+    el.innerHTML=`<div class="dot">${done?'✓':i+1}</div><span>${s}</span>`;
+    el.onclick=()=>{
+      if(DB.engine.includes(i)) DB.engine=DB.engine.filter(x=>x!==i);
+      else DB.engine.push(i);
+      commit();
+    };
+    eng.appendChild(el);
+  });
+  const pct=Math.round(DB.engine.length/ENGINE_STEPS.length*100);
+  document.getElementById('engineFill').style.width=pct+'%';
+  document.getElementById('enginePct').textContent=pct+'%';
+
+  // 平台雷达
+  const rad=document.getElementById('radar'); rad.innerHTML='';
+  RADAR_ITEMS.forEach((it,i)=>{
+    const done=day.radar.includes(i);
+    const el=document.createElement('div');
+    el.className='item'+(done?' done':'');
+    el.innerHTML=`<div class="box">✓</div><div class="txt">${it.t}<small>${it.s}</small></div>`;
+    el.onclick=()=>{
+      if(day.radar.includes(i)) day.radar=day.radar.filter(x=>x!==i);
+      else day.radar.push(i);
+      commit();
+    };
+    rad.appendChild(el);
+  });
+
+  // 本金
+  const left=CAPITAL_GOAL-CAPITAL_NOW;
+  document.getElementById('capital').textContent='¥'+CAPITAL_NOW.toLocaleString();
+  document.getElementById('capitalLeft').textContent=left.toLocaleString();
+  document.getElementById('capitalFill').style.width=(CAPITAL_NOW/CAPITAL_GOAL*100)+'%';
+}
+
+function commit(){ updateStreak(); save(DB); render(); }
+
+// 精力点击
+document.querySelectorAll('#energy button').forEach(b=>{
+  b.onclick=()=>{ DB.days[tk].energy=+b.dataset.v; commit(); };
+});
+
+render();
+</script>
+</body>
+</html>
