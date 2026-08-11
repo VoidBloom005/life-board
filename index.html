@@ -45,6 +45,50 @@
   .checks .txt{ font-size:14px; }
   .checks .txt small{ display:block; color:var(--sub); font-size:11px;
     text-decoration:none; }
+  /* ★ 硬核实力记录 */
+  .skill .bar{ height:10px; background:var(--line); border-radius:6px;
+    overflow:hidden; margin:4px 0 12px; }
+  .skill .fill{ height:100%; background:linear-gradient(90deg,var(--accent2),var(--gold));
+    width:0; transition:.4s; }
+  .skill-input{ display:flex; gap:8px; }
+  .skill-input input{ flex:1; min-width:0; padding:11px 12px; border:1.5px solid var(--line);
+    border-radius:10px; font-size:14px; background:#fff; -webkit-appearance:none; }
+  .skill-input button{ white-space:nowrap; padding:11px 16px; border:none;
+    background:var(--accent2); color:#fff; border-radius:10px; font-size:14px;
+    font-weight:500; cursor:pointer; }
+  .skill-hint{ font-size:12px; color:var(--sub); margin:10px 0 6px; }
+  .skill-item{ display:flex; gap:8px; padding:9px 0; border-bottom:1px dashed var(--line);
+    font-size:13px; align-items:flex-start; }
+  .skill-item:last-child{ border-bottom:none; }
+  .skill-item .n{ color:var(--gold); font-weight:700; flex-shrink:0; }
+  .skill-item .c{ flex:1; }
+  .skill-item .c small{ display:block; color:var(--sub); font-size:11px; margin-top:2px; }
+  .skill-item .del{ color:var(--sub); cursor:pointer; font-size:16px; padding:0 4px; }
+  /* ★ 本周日历 */
+  .week .bar{ height:10px; background:var(--line); border-radius:6px;
+    overflow:hidden; margin:4px 0 12px; }
+  .week .fill{ height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2));
+    width:0; transition:.4s; }
+  .week .day{ padding:10px 0; border-bottom:1px dashed var(--line); }
+  .week .day:last-child{ border-bottom:none; }
+  .week .day .dhead{ display:flex; align-items:center; gap:8px; font-size:13px;
+    font-weight:600; margin-bottom:4px; }
+  .week .day.today .dhead{ color:var(--accent); }
+  .week .day .badge{ font-size:10px; background:var(--accent); color:#fff;
+    padding:1px 7px; border-radius:10px; }
+  .week .task{ display:flex; align-items:flex-start; gap:9px; padding:5px 0 5px 4px;
+    cursor:pointer; font-size:13px; }
+  .week .task .box{ width:18px; height:18px; border:2px solid var(--line);
+    border-radius:5px; flex-shrink:0; display:flex; align-items:center;
+    justify-content:center; font-size:11px; color:#fff; margin-top:1px; }
+  .week .task.done .box{ background:var(--accent2); border-color:var(--accent2); }
+  .week .task.done .tt{ color:var(--sub); text-decoration:line-through; }
+  .week .task .tt small{ display:block; color:var(--sub); font-size:11px; text-decoration:none; }
+  /* ★ 导出 */
+  .export-row{ margin-top:18px; }
+  .export-row button{ width:100%; padding:13px; border:1.5px solid var(--accent);
+    background:#fff; color:var(--accent); border-radius:12px; font-size:15px;
+    font-weight:600; cursor:pointer; }
   /* 发动机进度条 */
   .engine .bar{ height:10px; background:var(--line); border-radius:6px;
     overflow:hidden; margin:4px 0 14px; }
@@ -128,6 +172,25 @@
     <div class="checks" id="life"></div>
   </div>
 
+  <!-- ★ 本季硬核实力（真·记录，永久累积） -->
+  <div class="card skill">
+    <h2>🧠 本季硬核实力 <span class="tag" id="skillCount">0 / 12</span></h2>
+    <div class="bar"><div class="fill" id="skillFill"></div></div>
+    <div class="skill-input">
+      <input type="text" id="skillInput" placeholder="今天搞懂了什么？（能自己讲出来的技术/原理）">
+      <button id="skillBtn">记下</button>
+    </div>
+    <div class="skill-hint" id="skillHint">每记一条 = 别人换不掉你的一分。目标本季 12 条，一周 1 条。</div>
+    <div id="skillList"></div>
+  </div>
+
+  <!-- ★ 本周日历（每天勾，即时反馈） -->
+  <div class="card week">
+    <h2>📅 本周主攻 <span class="tag" id="weekPct">0%</span></h2>
+    <div class="bar"><div class="fill" id="weekFill"></div></div>
+    <div id="week"></div>
+  </div>
+
   <!-- ③ 发动机进度 -->
   <div class="card engine">
     <h2>🚀 发动机：桌宠记账 <span class="tag" id="enginePct">0%</span></h2>
@@ -168,6 +231,13 @@
     </div>
   </div>
 
+  <div class="export-row">
+    <button id="exportBtn">📤 导出本周发给 Claude</button>
+    <div class="mini2" style="text-align:center;margin-top:8px;color:var(--sub)">
+      点一下自动复制，粘贴发我 = 同步。数据仍只在你手机，不上传。
+    </div>
+  </div>
+
   <div class="note">
     每天只花 2 分钟：点精力 → 勾几个格子 → 关掉。<br>
     数据只存在你自己电脑，不上传任何地方。<br>
@@ -189,22 +259,49 @@ const LIFE_ITEMS = [
 ];
 
 const ENGINE_STEPS = [
-  '想清楚：一句话说明白桌宠记账给谁、解决啥',
-  '连续用本地版7天（就是现在这个）',
-  '画出APP最核心的1个界面草图',
-  '做出能记一笔账的最小demo',
-  '给3个朋友用，收集真实反馈',
-  '搬上小程序+服务器',
-  '第1个陌生人愿意用',
-  '第1个陌生人愿意付费 🎉',
+  '第1坎·能用：微信开发者工具建项目、能跑起来',
+  '桌宠图片出现在屏幕角落',
+  '点桌宠→弹记账框→输金额',
+  '记的账存住不丢（关掉再开还在）',
+  '账单列表：能翻看每一笔',
+  '桌宠有表情/一句反馈（陪伴感）',
+  '你自己连续用满 30 天 ✅第1坎过',
+  '第2坎：3-5个真人试用、有人愿打开第二次',
 ];
 
 const RADAR_ITEMS = [
-  {t:'Doris数据库', s:'查询/建表/数仓，外面要花钱学的'},
-  {t:'补货归因分析', s:'把业务问题拆成数据问题的思维'},
-  {t:'超级补货员AI', s:'真实AI落地经验，简历硬通货'},
-  {t:'重点SKU工单', s:'产品化思维：给平台加功能模块'},
-  {t:'DBeaver/SQL', s:'数据岗基本功，越熟越值钱'},
+  {t:'需求→拆解→AI执行', s:'独立跑通一个完整需求，从理解到上线'},
+  {t:'吃透代码不靠AI', s:'让AI讲一遍，我能自己复述原理'},
+  {t:'数据链路', s:'数据从Doris到页面怎么走通的'},
+  {t:'平台功能产出', s:'能指着说"这是我做的"，10月述职硬货'},
+  {t:'述职素材整理', s:'8月底起攒，别10月临时回忆'},
+];
+
+// 本周主攻日历（W1：8/11-8/17，每周日复盘后我更新这里）
+const WEEK_LABEL = 'W1 · 8/11-8/17';
+const WEEK_TASKS = [
+  {date:'8-11', wk:'周二', tasks:[
+    {t:'双击工作日志记第一条', s:'哪怕就填一行'},
+    {t:'点亮进度台', s:'连续天数动起来'},
+  ]},
+  {date:'8-12', wk:'周三', tasks:[
+    {t:'搞懂第1个硬核点', s:'让AI讲代码→听懂→记进上面🧠'},
+  ]},
+  {date:'8-13', wk:'周四', tasks:[
+    {t:'搞懂第2个硬核点', s:'重点：数据怎么从Doris到页面'},
+  ]},
+  {date:'8-14', wk:'周五', tasks:[
+    {t:'搞懂第3个硬核点', s:'本周凑够3条'},
+  ]},
+  {date:'8-15', wk:'周六', tasks:[
+    {t:'桌宠记账第一步', s:'微信开发者工具建项目、跑起来（我带你）'},
+  ]},
+  {date:'8-16', wk:'周日', tasks:[
+    {t:'桌宠出现在屏幕', s:'放一张桌宠图能显示'},
+  ]},
+  {date:'8-17', wk:'周日晚', tasks:[
+    {t:'和Claude复盘+拆下周', s:'把导出发我'},
+  ]},
 ];
 
 const ENERGY_HINTS = {
@@ -229,6 +326,8 @@ function save(data){
 let DB = load();
 if(!DB.days) DB.days={};
 if(!DB.engine) DB.engine=[];      // 已完成的发动机步骤 index
+if(!DB.skills) DB.skills=[];      // ★ 硬核实力：永久累积 [{d:日期, t:内容}]
+if(!DB.week) DB.week={};          // ★ 本周日历勾选 {'8-11-0':true,...}
 if(!DB.streak) DB.streak={count:0,last:''};
 if(DB.saved2026==null) DB.saved2026=0;       // 2026累计存款
 if(DB.firstIncome==null) DB.firstIncome=false; // 副业第一笔是否达成
@@ -278,6 +377,45 @@ function render(){
     };
     life.appendChild(el);
   });
+
+  // ★ 硬核实力（永久累积，即时进度条）
+  const skillList=document.getElementById('skillList'); skillList.innerHTML='';
+  DB.skills.forEach((sk,i)=>{
+    const el=document.createElement('div');
+    el.className='skill-item';
+    el.innerHTML=`<span class="n">${i+1}</span><div class="c">${sk.t}<small>${sk.d}</small></div><span class="del" data-i="${i}">×</span>`;
+    el.querySelector('.del').onclick=()=>{ DB.skills.splice(i,1); commit(); };
+    skillList.appendChild(el);
+  });
+  const scount=DB.skills.length;
+  document.getElementById('skillCount').textContent=scount+' / 12';
+  document.getElementById('skillFill').style.width=Math.min(100,scount/12*100)+'%';
+  if(scount>=12) document.getElementById('skillHint').textContent='🎉 本季12条达成！你已经不是"只会指挥AI的人"了。';
+
+  // ★ 本周日历
+  const wk2=document.getElementById('week'); wk2.innerHTML='';
+  let wdone=0, wtotal=0;
+  WEEK_TASKS.forEach(day=>{
+    const isToday = (d.getMonth()+1)+'-'+d.getDate()===day.date;
+    const dd=document.createElement('div');
+    dd.className='day'+(isToday?' today':'');
+    dd.innerHTML=`<div class="dhead">${day.wk} ${day.date.replace('-','/')}${isToday?'<span class="badge">今天</span>':''}</div>`;
+    day.tasks.forEach((tsk,ti)=>{
+      wtotal++;
+      const key=day.date+'-'+ti;
+      const done=DB.week[key];
+      if(done) wdone++;
+      const te=document.createElement('div');
+      te.className='task'+(done?' done':'');
+      te.innerHTML=`<div class="box">✓</div><div class="tt">${tsk.t}<small>${tsk.s}</small></div>`;
+      te.onclick=()=>{ if(DB.week[key]) delete DB.week[key]; else DB.week[key]=true; commit(); };
+      dd.appendChild(te);
+    });
+    wk2.appendChild(dd);
+  });
+  const wpct=wtotal?Math.round(wdone/wtotal*100):0;
+  document.getElementById('weekFill').style.width=wpct+'%';
+  document.getElementById('weekPct').textContent=wpct+'%';
 
   // 发动机
   const eng=document.getElementById('engine'); eng.innerHTML='';
@@ -370,6 +508,53 @@ document.getElementById('capital').onclick=()=>{
   if(isNaN(n)||n<0){ alert('请填一个不小于0的数字'); return; }
   DB.capitalBase=n;
   commit();
+};
+
+// ★ 硬核实力：记一条
+function addSkill(){
+  const inp=document.getElementById('skillInput');
+  const t=inp.value.trim();
+  if(!t){ inp.focus(); return; }
+  const d=new Date();
+  const ds=(d.getMonth()+1)+'月'+d.getDate()+'日';
+  DB.skills.unshift({d:ds,t:t});   // 最新在上
+  inp.value='';
+  commit();
+}
+document.getElementById('skillBtn').onclick=addSkill;
+document.getElementById('skillInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') addSkill();
+});
+
+// ★ 导出本周发给 Claude
+document.getElementById('exportBtn').onclick=()=>{
+  const lines=[];
+  lines.push('【嘉欣人生进度台·同步 '+WEEK_LABEL+'】');
+  lines.push('连续打卡：'+DB.streak.count+'天');
+  lines.push('');
+  lines.push('🧠 硬核实力 '+DB.skills.length+'/12：');
+  if(DB.skills.length) DB.skills.forEach((s,i)=>lines.push('  '+(i+1)+'. '+s.t+'（'+s.d+'）'));
+  else lines.push('  （本周还没记）');
+  lines.push('');
+  lines.push('📅 本周日历完成：');
+  WEEK_TASKS.forEach(day=>{
+    day.tasks.forEach((tsk,ti)=>{
+      const done=DB.week[day.date+'-'+ti]?'✅':'⬜';
+      lines.push('  '+done+' '+day.wk+' '+tsk.t);
+    });
+  });
+  lines.push('');
+  lines.push('🚀 发动机桌宠记账：'+DB.engine.length+'/'+ENGINE_STEPS.length+'步');
+  lines.push('💵 今年存款：¥'+DB.saved2026+' / 2万');
+  lines.push('副业第一笔：'+(DB.firstIncome?'已达成🎉':'未达成'));
+  const txt=lines.join('\n');
+  const btn=document.getElementById('exportBtn');
+  function ok(){ btn.textContent='✓ 已复制，去粘贴发给Claude'; setTimeout(()=>btn.textContent='📤 导出本周发给 Claude',2500); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(ok).catch(()=>{ prompt('长按复制下面内容发给Claude：',txt); });
+  } else {
+    prompt('长按复制下面内容发给Claude：',txt);
+  }
 };
 
 render();
