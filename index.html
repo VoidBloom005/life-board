@@ -180,7 +180,7 @@ body{
   font-size:18px;font-weight:500;color:var(--text);
   line-height:1.55;margin-top:14px;
 }
-.motto-actions{display:flex;gap:8px;margin-top:8px;}
+.motto-actions{display:none;}
 .motto-actions span{font-size:10px;cursor:pointer;}
 .motto-actions .change{color:var(--accent);}
 .motto-actions .fav{color:rgba(154,122,110,0.6);}
@@ -189,14 +189,13 @@ body{
 .quick-record{
   flex-shrink:0;
   display:flex;align-items:center;gap:10px;
-  padding:6px 14px;
+  padding:3px 14px;
   background:var(--glass);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
   border-radius:16px;
   border:0.5px solid var(--glass-border);
 }
-.greeting-block .quick-record{width:100%;align-self:stretch;}
 .quick-record input{
   flex:1;border:none;background:transparent;outline:none;
   font-size:13px;color:var(--text);
@@ -525,14 +524,16 @@ body{
           <div class="greeting-block">
             <div class="greeting-date" id="todayDate"></div>
             <div class="countdown-tags" id="countdownTags"></div>
-            <div class="quick-record">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
-              <input type="text" id="quickRecordInput" placeholder="快速记录..." onkeydown="if(event.key==='Enter')addQuickRecord()">
-              <button class="quick-record-btn" onclick="addQuickRecord()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
-              </button>
-            </div>
           </div>
+        </div>
+
+        <!-- Quick Record Bar -->
+        <div class="quick-record">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
+          <input type="text" id="quickRecordInput" placeholder="快速记录：记一笔 / 写想法 / 加待办..." onkeydown="if(event.key==='Enter')addQuickRecord()">
+          <button class="quick-record-btn" onclick="addQuickRecord()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
+          </button>
         </div>
 
         <!-- Content Grid -->
