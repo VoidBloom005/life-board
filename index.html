@@ -133,7 +133,7 @@ body{
 }
 .avatar-wrap{position:relative;flex-shrink:0;}
 .avatar{
-  width:108px;height:108px;
+  width:132px;height:132px;
   border-radius:50%;
   background:var(--glass-strong);
   border:3px solid rgba(255,255,255,0.9);
@@ -143,7 +143,7 @@ body{
   cursor:pointer;
   object-fit:cover;
 }
-.avatar svg{width:54px;height:54px;}
+.avatar svg{width:64px;height:64px;}
 .avatar-upload-btn{
   position:absolute;bottom:2px;right:2px;
   width:26px;height:26px;border-radius:50%;
@@ -152,25 +152,24 @@ body{
   border:2px solid rgba(255,255,255,0.9);
   cursor:pointer;
 }
-.greeting-block{flex:1;min-width:0;}
-.greeting-date{font-size:11px;color:var(--text-light);margin-bottom:3px;}
-.greeting-text{
-  font-size:34px;font-weight:500;color:var(--text);
-  line-height:1.15;letter-spacing:-0.5px;
-}
-.countdown-tags{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.greeting-block{flex-shrink:0;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;justify-content:center;}
+.greeting-date{font-size:11px;color:var(--text-light);}
+.countdown-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
 .tag{
   padding:3px 12px;border-radius:12px;font-size:11px;
 }
 .tag-accent{background:var(--accent-light);color:var(--accent);font-weight:600;}
 .tag-glass{background:rgba(255,255,255,0.5);color:var(--text-light);}
 .motto-card{
-  flex-shrink:0;max-width:190px;
-  padding:14px 16px;
+  flex:1;min-width:0;
+  padding:18px 20px;
   background:rgba(255,255,255,0.4);
   border-radius:18px;
   position:relative;
   cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 .motto-icon{
   position:absolute;top:6px;left:8px;
@@ -178,7 +177,7 @@ body{
   opacity:0.3;
 }
 .motto-text{
-  font-size:15px;font-weight:500;color:var(--text);
+  font-size:18px;font-weight:500;color:var(--text);
   line-height:1.55;margin-top:14px;
 }
 .motto-actions{display:flex;gap:8px;margin-top:8px;}
@@ -190,7 +189,7 @@ body{
 .quick-record{
   flex-shrink:0;
   display:flex;align-items:center;gap:10px;
-  padding:10px 18px;
+  padding:6px 18px;
   background:var(--glass);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
@@ -215,7 +214,7 @@ body{
 /* ===== Content Grid ===== */
 .content-grid{
   display:grid;
-  grid-template-columns:1.5fr 1fr;
+  grid-template-columns:1.5fr 0.5fr;
   gap:14px;
   flex:1;
   min-height:0;
@@ -227,9 +226,9 @@ body{
   backdrop-filter:blur(28px);
   -webkit-backdrop-filter:blur(28px);
   border-radius:26px;
-  padding:18px;
+  padding:14px;
   border:0.5px solid var(--glass-border);
-  display:flex;flex-direction:column;gap:10px;
+  display:flex;flex-direction:column;
 }
 .gallery-header{
   display:flex;justify-content:space-between;align-items:center;
@@ -276,21 +275,22 @@ body{
   backdrop-filter:blur(24px);
   -webkit-backdrop-filter:blur(24px);
   border-radius:20px;
-  padding:14px 16px;
+  padding:12px 12px;
   border:0.5px solid var(--glass-border);
-  display:flex;align-items:center;gap:12px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
   cursor:pointer;
   transition:transform .15s;
+  text-align:center;
 }
 .quick-card:hover{transform:translateY(-1px);}
 .quick-card-icon{
-  width:38px;height:38px;border-radius:13px;
+  width:32px;height:32px;border-radius:11px;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
 .quick-card-body{flex:1;min-width:0;}
-.quick-card-title{font-size:13px;font-weight:600;color:var(--text);}
-.quick-card-sub{font-size:10px;color:var(--text-light);}
+.quick-card-title{font-size:12px;font-weight:600;color:var(--text);}
+.quick-card-sub{font-size:9px;color:var(--text-light);}
 
 /* ===== Todo List ===== */
 .todo-list{display:flex;flex-direction:column;gap:8px;}
@@ -413,8 +413,7 @@ body{
 @media(max-width:1024px){
   .main{padding:4px 30px 4px 4px;}
   .content{max-width:720px;}
-  .greeting-text{font-size:30px;}
-  .avatar{width:96px;height:96px;}
+  .avatar{width:114px;height:114px;}
 }
 @media(max-width:768px){
   #app{flex-direction:column;padding:12px;gap:0;}
@@ -438,9 +437,10 @@ body{
   .content{max-width:100%;padding:0 0 20px 0;gap:12px;}
   .hero-card{
     flex-direction:column;text-align:center;
-    padding:20px 18px;gap:14px;
+    padding:20px 18px;gap:14px;align-items:center;
   }
   .motto-card{max-width:100%;width:100%;}
+  .greeting-block{align-items:center;text-align:center;}
   .content-grid{grid-template-columns:1fr;}
   .gallery-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,minmax(90px,1fr));}
   .quick-cards{
@@ -448,14 +448,12 @@ body{
     grid-template-columns:1fr 1fr;
     gap:10px;
   }
-  .greeting-text{font-size:26px;}
   .countdown-tags{justify-content:center;}
   .motto-actions{justify-content:center;}
 }
 @media(max-width:400px){
   .quick-cards{grid-template-columns:1fr;}
-  .greeting-text{font-size:22px;}
-  .avatar{width:88px;height:88px;}
+  .avatar{width:100px;height:100px;}
 }
 
 /* ===== Data count banner ===== */
@@ -515,11 +513,6 @@ body{
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
             </div>
           </div>
-          <div class="greeting-block">
-            <div class="greeting-date" id="todayDate"></div>
-            <div class="greeting-text" id="greetingText"></div>
-            <div class="countdown-tags" id="countdownTags"></div>
-          </div>
           <div class="motto-card" onclick="editMotto()">
             <svg class="motto-icon" viewBox="0 0 24 24" fill="var(--accent)" fill-opacity="0.3"><path d="M7 7h4v4c0 2-1 3-3 4l-1-1c1-0.5 1.5-1 1.5-2H7V7zm6 0h4v4c0 2-1 3-3 4l-1-1c1-0.5 1.5-1 1.5-2H13V7z"/></svg>
             <div class="motto-text" id="mottoText">完成原始积累，不用上班。</div>
@@ -527,6 +520,10 @@ body{
               <span class="change" onclick="event.stopPropagation();changeMotto()">换一句</span>
               <span class="fav" onclick="event.stopPropagation();favMotto()">收藏</span>
             </div>
+          </div>
+          <div class="greeting-block">
+            <div class="greeting-date" id="todayDate"></div>
+            <div class="countdown-tags" id="countdownTags"></div>
           </div>
         </div>
 
@@ -543,10 +540,6 @@ body{
         <div class="content-grid">
           <!-- Gallery -->
           <div class="gallery">
-            <div class="gallery-header">
-              <span class="gallery-title">欣赏墙</span>
-              <button class="gallery-shuffle" onclick="shuffleGallery()">换一换</button>
-            </div>
             <div class="gallery-grid" id="galleryGrid"></div>
           </div>
           <!-- Quick Cards -->
@@ -559,7 +552,6 @@ body{
                 <div class="quick-card-title">学习</div>
                 <div class="quick-card-sub" id="studyQuick">今日 0/60min</div>
               </div>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(154,122,110,0.4)" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
             </div>
             <div class="quick-card" onclick="switchPage('home');scrollToTodo()">
               <div class="quick-card-icon" style="background:rgba(230,184,156,0.2);color:#C47E5F;">
@@ -569,7 +561,6 @@ body{
                 <div class="quick-card-title">To Do</div>
                 <div class="quick-card-sub" id="todoQuick">0 项待办</div>
               </div>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(154,122,110,0.4)" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
             </div>
             <div class="quick-card" onclick="switchPage('account')">
               <div class="quick-card-icon" style="background:var(--accent-light);color:var(--accent);">
@@ -579,7 +570,6 @@ body{
                 <div class="quick-card-title">记账</div>
                 <div class="quick-card-sub" id="accountQuick">今日 ¥0 · 本月 ¥0</div>
               </div>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(154,122,110,0.4)" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
             </div>
             <div class="quick-card" onclick="showNotes()">
               <div class="quick-card-icon" style="background:rgba(230,184,156,0.15);color:#C47E5F;">
@@ -589,7 +579,6 @@ body{
                 <div class="quick-card-title">随手记</div>
                 <div class="quick-card-sub" id="notesQuick">0 条想法</div>
               </div>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(154,122,110,0.4)" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
             </div>
           </div>
         </div>
@@ -904,7 +893,6 @@ function switchPage(name){
 function renderHero(){
   const d = new Date();
   document.getElementById('todayDate').textContent = formatDateCN(d);
-  document.getElementById('greetingText').textContent = getGreeting() + ', Natalie.';
   // Avatar
   const avatarEl = document.getElementById('avatarDisplay');
   if(DB.avatar){
@@ -1016,7 +1004,7 @@ function renderGallery(){
         </div>
       `;
     } else {
-      item.innerHTML = `<span class="gallery-item-empty">+ 上传</span>`;
+      item.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(154,122,110,0.25)" stroke-width="1.5" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>`;
     }
     item.onclick = () => {
       galleryEditIndex = i;
