@@ -782,6 +782,63 @@ body{
 #tab-escape-daily-log.active{display:flex;flex-direction:column;gap:12px;}
 .skill-list{display:flex;flex-direction:column;}
 
+
+/* ===== 跑路 · 学习路线图 v3.0 ===== */
+.roadmap-scroll{
+  height:calc(100vh - 150px);
+  overflow-y:auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  padding-right:6px;
+}
+.roadmap-col{
+  background:var(--glass);
+  border-radius:20px;
+  padding:18px;
+  border:0.5px solid var(--glass-border);
+}
+.roadmap-head{margin-bottom:14px;}
+.roadmap-title{font-size:17px;font-weight:700;color:var(--text);}
+.roadmap-badge{
+  display:inline-block;margin-left:8px;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:8px;vertical-align:middle;
+}
+.roadmap-badge.main{background:var(--accent);color:#fff;}
+.roadmap-badge.paused{background:rgba(154,122,110,0.18);color:var(--text-light);}
+.roadmap-col.paused{opacity:0.82;}
+.roadmap-sub{font-size:11px;color:var(--text-light);margin-top:4px;line-height:1.5;}
+.roadmap-progress-wrap{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.roadmap-bar{flex:1;height:8px;background:rgba(255,255,255,0.4);border-radius:4px;overflow:hidden;}
+.roadmap-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:4px;transition:width .4s;}
+.roadmap-pct{font-size:12px;font-weight:700;color:var(--accent);min-width:38px;text-align:right;}
+
+.stage{margin-top:14px;border-radius:14px;background:rgba(255,255,255,0.28);overflow:hidden;}
+.stage-header{
+  display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;
+}
+.stage-name{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+.stage-mini{font-size:11px;color:var(--accent);font-weight:700;}
+.stage-goal{font-size:10px;color:var(--text-light);padding:0 14px 8px;line-height:1.5;}
+.stage-caret{transition:transform .2s;font-size:12px;color:var(--text-light);}
+.stage.collapsed .stage-caret{transform:rotate(-90deg);}
+.stage.collapsed .stage-body{display:none;}
+.stage-body{padding:0 14px 12px;}
+
+.step{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:0.5px dashed rgba(255,255,255,0.4);}
+.step-check{
+  width:20px;height:20px;border-radius:6px;flex-shrink:0;margin-top:1px;
+  border:2px solid rgba(217,138,114,0.4);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.step.done .step-check{background:var(--accent);border-color:var(--accent);}
+.step-main{flex:1;}
+.step-text{font-size:12.5px;color:var(--text);line-height:1.4;}
+.step.done .step-text{text-decoration:line-through;color:var(--text-faint);}
+.step-how{font-size:10.5px;color:var(--text-light);margin-top:3px;line-height:1.5;}
+
+@media(max-width:900px){ .roadmap-scroll{grid-template-columns:1fr;} }
+
 </style>
 </head>
 <body>
@@ -890,14 +947,7 @@ body{
           <button class="tab-btn" data-tab="escape-daily-log" onclick="switchTab('page-escape','escape-daily-log')">学习日志</button>
         </div>
         <div class="tab-content active" id="tab-escape-skill-tree">
-          <div class="skill-column">
-            <div class="skill-title">AI 应用开发</div>
-            <div class="skill-list" id="skillListAi"></div>
-          </div>
-          <div class="skill-column">
-            <div class="skill-title">数据技能变现</div>
-            <div class="skill-list" id="skillListData"></div>
-          </div>
+          <div class="roadmap-scroll" id="roadmapContainer"></div>
         </div>
         <div class="tab-content" id="tab-escape-daily-log">
           <div class="log-form">
@@ -1545,6 +1595,126 @@ function migrateData(input){
     ];
     d.escapeSkills = SEED_SKILLS.map(([text,category],i) => ({id:now+80000+i, text, done:false, category}));
   }
+
+  // ===== 跑路板块 v3.0：学习路线图（路线→阶段→步骤）=====
+  const SEED_ROADMAP = [
+    {
+      id: 'road-data',
+      title: '数据技能变现',
+      subtitle: '目标：主业硬技能过硬，能进更好公司 / 能接数据私活',
+      priority: 'main',
+      badge: '🔥 主攻中',
+      stages: [
+        {
+          id: 'data-s1',
+          name: '阶段1 · SQL 真正打通',
+          goal: '不是会写，是能写对、写快、写复杂的',
+          steps: [
+            { id:'data-s1-1', text:'吃透 SELECT/WHERE/GROUP BY/ORDER BY', how:'在DBeaver里对公司真实表，独立写出"每天各分类的订单数"算过。', done:false },
+            { id:'data-s1-2', text:'掌握 JOIN（inner/left）连表查询', how:'能把两张表关联查出想要的结果，说得清left和inner区别，算过。', done:false },
+            { id:'data-s1-3', text:'掌握窗口函数（row_number/rank/sum over）', how:'能写出"每个分类销量前3的商品"算过。这是面试高频。', done:false },
+            { id:'data-s1-4', text:'掌握子查询、CTE（with 语句）', how:'能把一个复杂需求拆成多层with写清楚算过。', done:false }
+          ]
+        },
+        {
+          id: 'data-s2',
+          name: '阶段2 · Doris 专精',
+          goal: '把公司在用的 Doris 从"会用"变成"懂原理"',
+          steps: [
+            { id:'data-s2-1', text:'读完 Doris 官方文档"快速开始"+"数据模型"章', how:'能说清 Duplicate/Aggregate/Unique 三种模型区别，算过。', done:false },
+            { id:'data-s2-2', text:'搞懂分区分桶（partition/bucket）', how:'能解释为什么分桶、怎么定桶数，算过。', done:false },
+            { id:'data-s2-3', text:'学会看执行计划（explain），找慢查询原因', how:'在公司实际优化掉一个慢查询，记录前后耗时，算过。', done:false },
+            { id:'data-s2-4', text:'整理一篇《Doris 避坑笔记》', how:'写成markdown导出到知识库，算这阶段毕业。', done:false }
+          ]
+        },
+        {
+          id: 'data-s3',
+          name: '阶段3 · 数据分析能拿得出手',
+          goal: '不只是取数，能做出有结论的分析',
+          steps: [
+            { id:'data-s3-1', text:'学会用 pandas 做数据清洗', how:'读一个csv，去重、填空值、转格式，输出干净数据，算过。', done:false },
+            { id:'data-s3-2', text:'学会用 pandas 做分组统计、透视表', how:'能算出"各月各品类的环比增长"算过。', done:false },
+            { id:'data-s3-3', text:'做一份完整分析报告（有图有结论）', how:'针对一个真实业务问题，出一份带图表和建议的报告，算过。', done:false }
+          ]
+        },
+        {
+          id: 'data-s4',
+          name: '阶段4 · 可视化 + 变现',
+          goal: '能做出老板/客户看得懂的图，能接私活',
+          steps: [
+            { id:'data-s4-1', text:'学会一个BI工具（帆软 FineBI 或 Tableau 公开版）', how:'做出一个带筛选的交互式看板，算过。', done:false },
+            { id:'data-s4-2', text:'把一份分析包装成"作品"放到简历/作品集', how:'有一个能拿给别人看的完整案例，算过。', done:false },
+            { id:'data-s4-3', text:'研究数据私活渠道（猪八戒/朋友介绍/自媒体）', how:'了解清楚市场行情和接单方式，算这条路线毕业。', done:false }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'road-ai',
+      title: 'AI 应用开发',
+      subtitle: '目标：能独立做出并上架一个收费小程序（对标桌宠记账）',
+      priority: 'paused',
+      badge: '⏸ 打好数据基础后再启动',
+      stages: [
+        {
+          id: 'ai-s1',
+          name: '阶段1 · Python 打地基',
+          goal: '能看懂、能改、能写简单 Python 脚本',
+          steps: [
+            { id:'ai-s1-1', text:'装好 Python + VS Code，跑通第一个 print("hello")', how:'B站搜"Python环境搭建 VSCode"，跟着做一遍。能运行就算过。', done:false },
+            { id:'ai-s1-2', text:'搞懂变量、if判断、for循环、函数', how:'廖雪峰Python教程前5章。能自己写一个"猜数字"小游戏算过关。', done:false },
+            { id:'ai-s1-3', text:'学会读写文件、处理列表和字典', how:'写一个脚本：读一个txt，统计每行字数，输出结果。跑通算过。', done:false },
+            { id:'ai-s1-4', text:'学会用 pip 装库、import 别人的库', how:'装 requests 库，成功 import 不报错算过。', done:false },
+            { id:'ai-s1-5', text:'练手：写一个"批量重命名文件"小工具', how:'能把一个文件夹里的图片批量改成 01.jpg 02.jpg... 算毕业。', done:false }
+          ]
+        },
+        {
+          id: 'ai-s2',
+          name: '阶段2 · 学会调 AI 接口',
+          goal: '能用代码调用大模型，拿到 AI 返回的结果',
+          steps: [
+            { id:'ai-s2-1', text:'注册 DeepSeek 开放平台，拿到 API Key', how:'官网 platform.deepseek.com 注册，充1块钱，复制出 key。', done:false },
+            { id:'ai-s2-2', text:'用 requests 发第一个请求，让 AI 回一句话', how:'照官方文档 curl 示例改成 Python。终端里打印出AI回复算过。', done:false },
+            { id:'ai-s2-3', text:'搞懂 system/user 角色、多轮对话怎么传', how:'能让 AI "记住"上一句你说的话，连续聊3轮算过。', done:false },
+            { id:'ai-s2-4', text:'练手：做个命令行"AI记账小助手"', how:'输入"午饭花了32"，AI帮你解析成 金额/分类 并打印。算毕业。', done:false }
+          ]
+        },
+        {
+          id: 'ai-s3',
+          name: '阶段3 · 做出能看的界面',
+          goal: '把功能包成有界面的小程序，能在手机上点',
+          steps: [
+            { id:'ai-s3-1', text:'装 HBuilderX，跑通 uni-app 第一个空白页', how:'新建uni-app项目，微信开发者工具里能预览算过。', done:false },
+            { id:'ai-s3-2', text:'学会写页面：按钮、输入框、列表', how:'做一个页面：输入框+按钮，点了把文字加到下面列表。算过。', done:false },
+            { id:'ai-s3-3', text:'学会本地存数据（uni.setStorage）', how:'关掉小程序再打开，之前记的还在，算过。', done:false },
+            { id:'ai-s3-4', text:'把阶段2的AI记账接进来', how:'界面里输入"午饭32"→调AI→存下来→列表显示。核心闭环打通。', done:false }
+          ]
+        },
+        {
+          id: 'ai-s4',
+          name: '阶段4 · 上架 + 收钱',
+          goal: '让别人能用上，并且能收到钱',
+          steps: [
+            { id:'ai-s4-1', text:'注册微信小程序账号（个人主体）', how:'mp.weixin.qq.com 注册，拿到 AppID 算过。', done:false },
+            { id:'ai-s4-2', text:'把小程序提交审核、成功上线', how:'能在微信里搜到自己的小程序算过。', done:false },
+            { id:'ai-s4-3', text:'接入一个简单的收费点（如会员/打赏）', how:'研究虚拟支付或引导付费。有一条能收钱的路径算过。', done:false },
+            { id:'ai-s4-4', text:'找5个真人用，收集反馈', how:'5个非亲友用过并给了意见，算这条路线毕业。', done:false }
+          ]
+        }
+      ]
+    }
+  ];
+
+  // 迁移：旧数据是扁平 escapeSkills 或无 roadmap 时用种子；已有则保留 done 状态
+  if(!Array.isArray(d.escapeRoadmap) || d.escapeRoadmap.length === 0){
+    d.escapeRoadmap = JSON.parse(JSON.stringify(SEED_ROADMAP));
+  } else {
+    const doneMap = {};
+    d.escapeRoadmap.forEach(r => (r.stages||[]).forEach(st => (st.steps||[]).forEach(s => { doneMap[s.id] = s.done; })));
+    d.escapeRoadmap = JSON.parse(JSON.stringify(SEED_ROADMAP));
+    d.escapeRoadmap.forEach(r => r.stages.forEach(st => st.steps.forEach(s => { if(doneMap[s.id] !== undefined) s.done = doneMap[s.id]; })));
+  }
+  // 旧的 escapeSkills 字段保留不动；escapeLogs（学习日志 TAB）保留不动
   d.escapeLogs = safeArray(input && input.escapeLogs).map((l,i) => ({
     id: numericId(l.id, now+81000+i),
     text: String(l.text || ''),
@@ -1654,7 +1824,7 @@ function switchPage(name){
   document.querySelector(`.nav-item[data-page="${name}"]`)?.classList.add('active');
   if(name === 'english') renderEnglish();
   if(name === 'reading') renderReading();
-  if(name === 'escape'){ renderEscapeSkills(); renderEscapeLogs(); }
+  if(name === 'escape'){ renderEscapeRoadmap(); renderEscapeLogs(); }
   if(name === 'knowledge') renderKnowledge();
   if(name === 'settings') renderSettings();
 }
@@ -2017,6 +2187,79 @@ function switchTab(pageId, tabName){
   const content = document.getElementById('tab-' + tabName);
   if(content) content.classList.add('active');
 }
+
+// ===== 跑路 · 学习路线图 v3.0 =====
+function renderEscapeRoadmap(){
+  const box = document.getElementById('roadmapContainer');
+  if(!box) return;
+  box.innerHTML = (DB.escapeRoadmap || []).map(road => {
+    const allSteps = road.stages.flatMap(s => s.steps);
+    const doneCount = allSteps.filter(s => s.done).length;
+    const pct = allSteps.length ? Math.round(doneCount/allSteps.length*100) : 0;
+
+    const stagesHtml = road.stages.map(st => {
+      const sSteps = st.steps;
+      const sDone = sSteps.filter(s => s.done).length;
+      const stageDone = sDone === sSteps.length;
+      const isCurrent = !stageDone && sSteps.some(s=>!s.done);
+      const collapsed = (road.priority === 'paused') ? true : (stageDone || !isCurrent);
+      const stepsHtml = sSteps.map(s => `
+        <div class="step ${s.done?'done':''}">
+          <div class="step-check" onclick="toggleStep('${s.id}')">
+            ${s.done?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>':''}
+          </div>
+          <div class="step-main">
+            <div class="step-text">${s.text}</div>
+            <div class="step-how">👉 ${s.how}</div>
+          </div>
+        </div>
+      `).join('');
+      return `
+        <div class="stage ${collapsed?'collapsed':''}" id="stage-${st.id}">
+          <div class="stage-header" onclick="toggleStage('${st.id}')">
+            <span class="stage-caret">▼</span>
+            <span class="stage-name">${st.name}</span>
+            <span class="stage-mini">${sDone}/${sSteps.length}</span>
+          </div>
+          <div class="stage-goal">🎯 ${st.goal}</div>
+          <div class="stage-body">${stepsHtml}</div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="roadmap-col ${road.priority === 'paused' ? 'paused' : ''}">
+        <div class="roadmap-head">
+          <div class="roadmap-title">
+            ${road.title}
+            <span class="roadmap-badge ${road.priority}">${road.badge}</span>
+          </div>
+          <div class="roadmap-sub">${road.subtitle}</div>
+          <div class="roadmap-progress-wrap">
+            <div class="roadmap-bar"><div class="roadmap-bar-fill" style="width:${pct}%"></div></div>
+            <span class="roadmap-pct">${pct}%</span>
+          </div>
+        </div>
+        ${stagesHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleStep(stepId){
+  (DB.escapeRoadmap || []).forEach(r => r.stages.forEach(st => st.steps.forEach(s => {
+    if(s.id === stepId) s.done = !s.done;
+  })));
+  saveData();
+  renderEscapeRoadmap();
+  showToast('进度已更新');
+}
+
+function toggleStage(stageId){
+  const el = document.getElementById('stage-'+stageId);
+  if(el) el.classList.toggle('collapsed');
+}
+
 function renderEscapeSkills(){
   const ai = document.getElementById('skillListAi');
   const data = document.getElementById('skillListData');
